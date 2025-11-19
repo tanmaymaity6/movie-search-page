@@ -13,7 +13,6 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [movies, setMovies] = useState<Movie[]>(mockMovies);
 
-  // 🔁 Debounce search
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (!query.trim()) setMovies(mockMovies);
@@ -31,7 +30,7 @@ export default function App() {
     <div
       style={{
         minHeight: "100vh",
-        backgroundColor: "#000", // ✅ pure black background
+        backgroundColor: "#000",
         color: "white",
         padding: "40px 20px",
         textAlign: "center",
@@ -44,10 +43,9 @@ export default function App() {
           marginBottom: "30px",
         }}
       >
-        🎬 Movie Search
+        Movie Search
       </h1>
 
-      {/* 🔍 Search box centered */}
       <div style={{ display: "flex", justifyContent: "center", marginBottom: "40px" }}>
         <input
           type="text"
@@ -67,7 +65,6 @@ export default function App() {
         />
       </div>
 
-      {/* ✅ Only show section if there are results */}
       {movies.length > 0 ? (
         <>
           <h4
@@ -91,6 +88,7 @@ export default function App() {
             {movies.map((movie) => (
               <div
                 key={movie.id}
+                className="movie-card"
                 style={{
                   position: "relative",
                   flex: "0 1 calc(14% - 18px)",
@@ -104,14 +102,8 @@ export default function App() {
                   maxWidth: "180px",
                   overflow: "hidden",
                 }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.transform = "scale(1.06)";
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.transform = "scale(1)";
-                }}
               >
-                {/* Movie Poster */}
+                {/* Poster */}
                 <img
                   src={
                     movie.poster_path
@@ -119,50 +111,16 @@ export default function App() {
                       : "https://via.placeholder.com/150x225?text=No+Image"
                   }
                   alt={movie.title}
-                  style={{
-                    width: "100%",
-                    height: "230px",
-                    objectFit: "cover",
-                    borderTopLeftRadius: "10px",
-                    borderTopRightRadius: "10px",
-                  }}
+                  className="movie-poster"
                 />
 
-                {/* Hover overlay with description */}
-                <div
-                  className="movie-overlay"
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    height: "100%",
-                    backgroundColor: "rgba(0, 0, 0, 0.85)",
-                    color: "white",
-                    opacity: 0,
-                    transition: "opacity 0.3s ease",
-                    padding: "14px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    textAlign: "center",
-                    fontSize: "0.8rem",
-                  }}
-                >
-                  <h3
-                    style={{
-                      fontSize: "1rem",
-                      fontWeight: 700,
-                      marginBottom: "8px",
-                    }}
-                  >
-                    {movie.title}
-                  </h3>
-                  <p style={{ lineHeight: 1.3 }}>{movie.overview}</p>
+                {/* Hover Overlay */}
+                <div className="movie-overlay">
+                  <h3>{movie.title}</h3>
+                  <p>{movie.overview}</p>
                 </div>
 
-                {/* Title + Release Date below */}
+                {/* Title and Release Date */}
                 <div
                   style={{
                     padding: "10px",
@@ -198,7 +156,6 @@ export default function App() {
           </div>
         </>
       ) : (
-        // ❌ When no movies found
         <p
           style={{
             color: "#aaa",
@@ -206,7 +163,7 @@ export default function App() {
             marginTop: "2rem",
           }}
         >
-          No movies found 😢
+          No movies found
         </p>
       )}
     </div>
