@@ -1,35 +1,214 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from "react";
+import { mockMovies } from "./mockData";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+export interface Movie {
+  id: number;
+  title: string;
+  poster_path: string | null;
+  release_date: string;
+  overview: string;
 }
 
-export default App
+export default function App() {
+  const [query, setQuery] = useState("");
+  const [movies, setMovies] = useState<Movie[]>(mockMovies);
+
+  // 🔁 Debounce search
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!query.trim()) setMovies(mockMovies);
+      else {
+        const filtered = mockMovies.filter((m) =>
+          m.title.toLowerCase().includes(query.toLowerCase())
+        );
+        setMovies(filtered);
+      }
+    }, 400);
+    return () => clearTimeout(timeout);
+  }, [query]);
+
+  return (
+    <div
+      style={{
+        minHeight: "100vh",
+        backgroundColor: "#000", // ✅ pure black background
+        color: "white",
+        padding: "40px 20px",
+        textAlign: "center",
+      }}
+    >
+      <h1
+        style={{
+          fontSize: "2rem",
+          fontWeight: 700,
+          marginBottom: "30px",
+        }}
+      >
+        🎬 Movie Search
+      </h1>
+
+      {/* 🔍 Search box centered */}
+      <div style={{ display: "flex", justifyContent: "center", marginBottom: "40px" }}>
+        <input
+          type="text"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search movies..."
+          style={{
+            width: "320px",
+            padding: "10px 14px",
+            borderRadius: "8px",
+            border: "1px solid #444",
+            backgroundColor: "#111",
+            color: "white",
+            fontSize: "1rem",
+            outline: "none",
+          }}
+        />
+      </div>
+
+      {/* ✅ Only show section if there are results */}
+      {movies.length > 0 ? (
+        <>
+          <h4
+            style={{
+              fontSize: "1.25rem",
+              fontWeight: 400,
+              marginBottom: "1rem",
+            }}
+          >
+            Now Showing
+          </h4>
+
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: "20px",
+            }}
+          >
+            {movies.map((movie) => (
+              <div
+                key={movie.id}
+                style={{
+                  position: "relative",
+                  flex: "0 1 calc(14% - 18px)",
+                  backgroundColor: "#111",
+                  borderRadius: "10px",
+                  boxShadow: "0 4px 8px rgba(0,0,0,0.6)",
+                  cursor: "pointer",
+                  transition: "transform 0.3s ease",
+                  color: "white",
+                  minWidth: "150px",
+                  maxWidth: "180px",
+                  overflow: "hidden",
+                }}
+                onMouseEnter={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.transform = "scale(1.06)";
+                }}
+                onMouseLeave={(e) => {
+                  (e.currentTarget as HTMLDivElement).style.transform = "scale(1)";
+                }}
+              >
+                {/* Movie Poster */}
+                <img
+                  src={
+                    movie.poster_path
+                      ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+                      : "https://via.placeholder.com/150x225?text=No+Image"
+                  }
+                  alt={movie.title}
+                  style={{
+                    width: "100%",
+                    height: "230px",
+                    objectFit: "cover",
+                    borderTopLeftRadius: "10px",
+                    borderTopRightRadius: "10px",
+                  }}
+                />
+
+                {/* Hover overlay with description */}
+                <div
+                  className="movie-overlay"
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                    backgroundColor: "rgba(0, 0, 0, 0.85)",
+                    color: "white",
+                    opacity: 0,
+                    transition: "opacity 0.3s ease",
+                    padding: "14px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    textAlign: "center",
+                    fontSize: "0.8rem",
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontSize: "1rem",
+                      fontWeight: 700,
+                      marginBottom: "8px",
+                    }}
+                  >
+                    {movie.title}
+                  </h3>
+                  <p style={{ lineHeight: 1.3 }}>{movie.overview}</p>
+                </div>
+
+                {/* Title + Release Date below */}
+                <div
+                  style={{
+                    padding: "10px",
+                    backgroundColor: "#1a1a1a",
+                    borderBottomLeftRadius: "10px",
+                    borderBottomRightRadius: "10px",
+                  }}
+                >
+                  <h3
+                    style={{
+                      fontSize: "0.95rem",
+                      fontWeight: 600,
+                      marginBottom: "4px",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
+                    {movie.title}
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: "0.8rem",
+                      color: "#aaa",
+                      margin: 0,
+                    }}
+                  >
+                    {movie.release_date}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      ) : (
+        // ❌ When no movies found
+        <p
+          style={{
+            color: "#aaa",
+            fontSize: "1rem",
+            marginTop: "2rem",
+          }}
+        >
+          No movies found 😢
+        </p>
+      )}
+    </div>
+  );
+}
